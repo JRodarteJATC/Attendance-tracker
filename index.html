@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Attendance Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1a202c;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #c0392b 0%, #922b21 100%);
+      color: #fff;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    }
+    header svg { flex-shrink: 0; }
+    header h1 { font-size: 1.45rem; font-weight: 700; letter-spacing: .3px; }
+    header p  { font-size: .85rem; opacity: .85; margin-top: 2px; }
+
+    /* ── Main layout ─────────────────────────────────────── */
+    main { max-width: 1050px; margin: 0 auto; padding: 24px 16px 48px; }
+
+    /* ── Card ────────────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.1);
+      padding: 22px 24px;
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #922b21;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Session bar ─────────────────────────────────────── */
+    .session-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: flex-end;
+    }
+    .field-group { display: flex; flex-direction: column; gap: 4px; }
+    .field-group label { font-size: .8rem; font-weight: 600; color: #4a5568; }
+    .field-group input,
+    .field-group select {
+      border: 1.5px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .field-group input:focus,
+    .field-group select:focus { border-color: #c0392b; }
+
+    /* ── Roster management ───────────────────────────────── */
+    .add-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .add-row input {
+      flex: 1;
+      border: 1.5px solid #cbd5e0;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .add-row input:focus { border-color: #c0392b; }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: filter .15s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn:hover  { filter: brightness(1.08); }
+    .btn:active { transform: scale(.97); }
+
+    .btn-red    { background: #c0392b; color: #fff; }
+    .btn-green  { background: #27ae60; color: #fff; }
+    .btn-blue   { background: #2980b9; color: #fff; }
+    .btn-gray   { background: #e2e8f0; color: #4a5568; }
+    .btn-orange { background: #e67e22; color: #fff; }
+    .btn-sm     { padding: 5px 10px; font-size: .78rem; }
+
+    /* ── Attendance table ────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    thead th {
+      background: #922b21;
+      color: #fff;
+      padding: 11px 12px;
+      text-align: left;
+      font-size: .82rem;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+    thead th:first-child { border-radius: 6px 0 0 0; }
+    thead th:last-child  { border-radius: 0 6px 0 0; }
+
+    tbody tr { border-bottom: 1px solid #e2e8f0; transition: background .15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fef9f9; }
+
+    td { padding: 10px 12px; vertical-align: middle; }
+    td.num { color: #718096; font-size: .82rem; width: 36px; text-align: center; }
+    td.name-cell { font-weight: 600; min-width: 160px; }
+
+    /* ── Status buttons ──────────────────────────────────── */
+    .status-group { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .status-btn {
+      border: 2px solid transparent;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      background: #edf2f7;
+      color: #4a5568;
+    }
+    .status-btn:hover { filter: brightness(.95); }
+
+    .status-btn.active-P  { background: #d4edda; color: #155724; border-color: #27ae60; }
+    .status-btn.active-T  { background: #fff3cd; color: #856404; border-color: #f0a500; }
+    .status-btn.active-A  { background: #f8d7da; color: #721c24; border-color: #c0392b; }
+    .status-btn.active-E  { background: #d1ecf1; color: #0c5460; border-color: #17a2b8; }
+
+    td.actions { text-align: right; white-space: nowrap; }
+
+    /* ── Summary bar ─────────────────────────────────────── */
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .summary-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f7fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 16px;
+      flex: 1;
+      min-width: 130px;
+    }
+    .chip-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-P { background: #27ae60; }
+    .dot-T { background: #f0a500; }
+    .dot-A { background: #c0392b; }
+    .dot-E { background: #17a2b8; }
+    .dot-U { background: #a0aec0; }
+
+    .chip-label { font-size: .78rem; color: #718096; }
+    .chip-count { font-size: 1.4rem; font-weight: 700; color: #1a202c; line-height: 1; }
+
+    /* ── Export section ──────────────────────────────────── */
+    .export-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .export-note { font-size: .8rem; color: #718096; }
+
+    /* ── Empty state ─────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 36px 20px;
+      color: #a0aec0;
+    }
+    .empty-state p { font-size: .95rem; margin-top: 8px; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      background: #1a202c;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: .88rem;
+      font-weight: 600;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+      z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── History section ─────────────────────────────────── */
+    #history-list { list-style: none; }
+    #history-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: .88rem;
+      gap: 12px;
+    }
+    #history-list li:last-child { border-bottom: none; }
+    .hist-meta { color: #718096; font-size: .8rem; }
+    .hist-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .hist-badge {
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.1rem; }
+      .status-group { gap: 4px; }
+      .status-btn { padding: 4px 8px; font-size: .72rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────── -->
+<header>
+  <svg width="38" height="38" viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="38" height="38" rx="9" fill="rgba(255,255,255,.15)"/>
+    <path d="M10 27v-2a7 7 0 0 1 14 0v2" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="17" cy="15" r="4" stroke="#fff" stroke-width="2"/>
+    <path d="M24 14l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <div>
+    <h1>Student Attendance Tracker</h1>
+    <p>Central Valley JATC &nbsp;·&nbsp; Canvas Module</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── Session Info ────────────────────────────────────── -->
+  <div class="card">
+    <h2>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Session Details
+    </h2>
+    <div class="session-bar">
+      <div class="field-group">
+        <label for="class-name">Class / Course</label>
+        <input id="class-name" type="text" placeholder="e.g. Electrical Theory 101" style="min-width:220px;" />
+      </div>
+      <div class="field-group">
+        <label for="session-date">Date</label>
+        <input id="session-date" type="date" />
+      </div>
+      <div class="field-group">
+        <label for="instructor">Instructor</label>
+        <input id="instructor" type="text" placeholder="Instructor name" style="min-width:160px;" />
+      </div>
+      <div class="field-group">
+        <label for="period">Period / Term</label>
+        <input id="period" type="text" placeholder="e.g. Spring 2026" style="min-width:120px;" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Roster ──────────────────────────────────────────── -->
+  <div class="card">
+    <h2>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Student Roster
+    </h2>
+    <div class="add-row">
+      <input id="student-input" type="text" placeholder="Type student name and press Enter or click Add" />
+      <button class="btn btn-red" onclick="addStudent()">+ Add</button>
+      <button class="btn btn-gray" onclick="clearRoster()" title="Remove all students">Clear All</button>
+    </div>
+    <p style="font-size:.8rem;color:#718096;margin-bottom:14px;">
+      Tip: Paste multiple names separated by commas or new lines, then click <strong>Add</strong>.
+    </p>
+
+    <!-- Attendance Table -->
+    <div class="table-wrap">
+      <table id="attendance-table">
+        <thead>
+          <tr>
+            <th style="width:36px;">#</th>
+            <th>Student Name</th>
+            <th>Attendance Status</th>
+            <th style="text-align:right;">Remove</th>
+          </tr>
+        </thead>
+        <tbody id="student-tbody">
+          <!-- rows injected by JS -->
+        </tbody>
+      </table>
+      <div id="empty-state" class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        <p>No students added yet. Start by typing a name above.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Summary ─────────────────────────────────────────── -->
+  <div class="card">
+    <h2>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Session Summary
+    </h2>
+    <div class="summary">
+      <div class="summary-chip">
+        <div class="chip-dot dot-P"></div>
+        <div>
+          <div class="chip-label">Present</div>
+          <div class="chip-count" id="count-P">0</div>
+        </div>
+      </div>
+      <div class="summary-chip">
+        <div class="chip-dot dot-T"></div>
+        <div>
+          <div class="chip-label">Tardy</div>
+          <div class="chip-count" id="count-T">0</div>
+        </div>
+      </div>
+      <div class="summary-chip">
+        <div class="chip-dot dot-A"></div>
+        <div>
+          <div class="chip-label">Absent</div>
+          <div class="chip-count" id="count-A">0</div>
+        </div>
+      </div>
+      <div class="summary-chip">
+        <div class="chip-dot dot-E"></div>
+        <div>
+          <div class="chip-label">Early Departure</div>
+          <div class="chip-count" id="count-E">0</div>
+        </div>
+      </div>
+      <div class="summary-chip">
+        <div class="chip-dot dot-U"></div>
+        <div>
+          <div class="chip-label">Not Marked</div>
+          <div class="chip-count" id="count-U">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Export / Save ───────────────────────────────────── -->
+  <div class="card">
+    <h2>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export &amp; Save
+    </h2>
+    <div class="export-row">
+      <button class="btn btn-green" onclick="exportCSV()">⬇ Export CSV</button>
+      <button class="btn btn-blue"  onclick="exportPrint()">🖨 Print / PDF</button>
+      <button class="btn btn-red"   onclick="saveSession()">💾 Save Session</button>
+      <span class="export-note">Saved sessions persist in this browser tab until cleared.</span>
+    </div>
+  </div>
+
+  <!-- ── Session History ─────────────────────────────────── -->
+  <div class="card" id="history-card" style="display:none;">
+    <h2>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+      Saved Sessions
+    </h2>
+    <ul id="history-list"></ul>
+    <div style="margin-top:12px;">
+      <button class="btn btn-gray btn-sm" onclick="clearHistory()">🗑 Clear All History</button>
+    </div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ── Print styles ──────────────────────────────────────── -->
+<style id="print-style">
+  @media print {
+    body { background: #fff; }
+    header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .btn, .add-row, .export-row, #history-card, .card h2 svg { display: none !important; }
+    .card { box-shadow: none; border: 1px solid #ddd; }
+    main { padding: 8px; }
+  }
+</style>
+
+<script>
+  // ── State ─────────────────────────────────────────────────
+  let students = [];   // { id, name, status }
+  let sessions = JSON.parse(sessionStorage.getItem('att_sessions') || '[]');
+
+  const STATUS = {
+    P: 'Present',
+    T: 'Tardy',
+    A: 'Absent',
+    E: 'Early Departure'
+  };
+  const STATUS_COLORS = { P: '#27ae60', T: '#f0a500', A: '#c0392b', E: '#17a2b8' };
+
+  // Set today's date as default
+  document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+
+  // ── Add student(s) ────────────────────────────────────────
+  function addStudent() {
+    const raw = document.getElementById('student-input').value;
+    const names = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    if (!names.length) return;
+    names.forEach(name => {
+      students.push({ id: Date.now() + Math.random(), name, status: null });
+    });
+    document.getElementById('student-input').value = '';
+    renderTable();
+    toast(`Added ${names.length} student${names.length > 1 ? 's' : ''}`);
+  }
+
+  document.getElementById('student-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addStudent();
+  });
+
+  // ── Remove student ────────────────────────────────────────
+  function removeStudent(id) {
+    students = students.filter(s => s.id !== id);
+    renderTable();
+  }
+
+  // ── Clear roster ──────────────────────────────────────────
+  function clearRoster() {
+    if (!students.length) return;
+    if (confirm('Remove all students from the roster?')) {
+      students = [];
+      renderTable();
+    }
+  }
+
+  // ── Set status ────────────────────────────────────────────
+  function setStatus(id, code) {
+    const s = students.find(s => s.id === id);
+    if (!s) return;
+    s.status = s.status === code ? null : code;   // toggle off if same
+    renderTable();
+  }
+
+  // ── Render table ──────────────────────────────────────────
+  function renderTable() {
+    const tbody = document.getElementById('student-tbody');
+    const empty = document.getElementById('empty-state');
+    tbody.innerHTML = '';
+
+    if (!students.length) {
+      empty.style.display = 'block';
+      updateSummary();
+      return;
+    }
+    empty.style.display = 'none';
+
+    students.forEach((s, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="num">${i + 1}</td>
+        <td class="name-cell">${escHtml(s.name)}</td>
+        <td>
+          <div class="status-group">
+            ${Object.entries(STATUS).map(([code, label]) => `
+              <button
+                class="status-btn ${s.status === code ? 'active-' + code : ''}"
+                onclick="setStatus(${s.id}, '${code}')"
+                title="${label}"
+              >${label}</button>
+            `).join('')}
+          </div>
+        </td>
+        <td class="actions">
+          <button class="btn btn-gray btn-sm" onclick="removeStudent(${s.id})">✕</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    updateSummary();
+  }
+
+  // ── Summary ───────────────────────────────────────────────
+  function updateSummary() {
+    const counts = { P: 0, T: 0, A: 0, E: 0, U: 0 };
+    students.forEach(s => {
+      if (s.status && counts[s.status] !== undefined) counts[s.status]++;
+      else if (!s.status) counts.U++;
+    });
+    Object.keys(counts).forEach(k => {
+      document.getElementById('count-' + k).textContent = counts[k];
+    });
+  }
+
+  // ── Export CSV ────────────────────────────────────────────
+  function exportCSV() {
+    if (!students.length) { toast('No students to export'); return; }
+    const date   = document.getElementById('session-date').value || 'Unknown Date';
+    const course = document.getElementById('class-name').value   || 'Unknown Course';
+    const instr  = document.getElementById('instructor').value   || '';
+    const period = document.getElementById('period').value       || '';
+
+    let csv = `"Student Attendance Report"\n`;
+    csv += `"Course","${course}"\n`;
+    csv += `"Date","${date}"\n`;
+    if (instr)  csv += `"Instructor","${instr}"\n`;
+    if (period) csv += `"Period","${period}"\n`;
+    csv += `\n"#","Student Name","Status"\n`;
+
+    students.forEach((s, i) => {
+      const statusLabel = s.status ? STATUS[s.status] : 'Not Marked';
+      csv += `"${i + 1}","${s.name.replace(/"/g, '""')}","${statusLabel}"\n`;
+    });
+
+    const counts = { P: 0, T: 0, A: 0, E: 0, U: 0 };
+    students.forEach(s => { s.status ? counts[s.status]++ : counts.U++; });
+    csv += `\n"Summary"\n`;
+    csv += `"Present","${counts.P}"\n"Tardy","${counts.T}"\n"Absent","${counts.A}"\n"Early Departure","${counts.E}"\n"Not Marked","${counts.U}"\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = `attendance_${date}_${course.replace(/\s+/g, '_')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('CSV exported!');
+  }
+
+  // ── Print ─────────────────────────────────────────────────
+  function exportPrint() {
+    window.print();
+  }
+
+  // ── Save session ──────────────────────────────────────────
+  function saveSession() {
+    if (!students.length) { toast('No students to save'); return; }
+    const session = {
+      id:       Date.now(),
+      date:     document.getElementById('session-date').value || new Date().toISOString().split('T')[0],
+      course:   document.getElementById('class-name').value   || 'Untitled Course',
+      instr:    document.getElementById('instructor').value,
+      period:   document.getElementById('period').value,
+      students: JSON.parse(JSON.stringify(students))
+    };
+    sessions.unshift(session);
+    if (sessions.length > 50) sessions.pop();
+    sessionStorage.setItem('att_sessions', JSON.stringify(sessions));
+    renderHistory();
+    toast('Session saved!');
+  }
+
+  // ── Load session ──────────────────────────────────────────
+  function loadSession(id) {
+    const sess = sessions.find(s => s.id === id);
+    if (!sess) return;
+    students = JSON.parse(JSON.stringify(sess.students));
+    document.getElementById('session-date').value = sess.date;
+    document.getElementById('class-name').value   = sess.course;
+    document.getElementById('instructor').value   = sess.instr  || '';
+    document.getElementById('period').value       = sess.period || '';
+    renderTable();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    toast('Session loaded');
+  }
+
+  // ── Delete session ────────────────────────────────────────
+  function deleteSession(id) {
+    sessions = sessions.filter(s => s.id !== id);
+    sessionStorage.setItem('att_sessions', JSON.stringify(sessions));
+    renderHistory();
+    toast('Session deleted');
+  }
+
+  // ── Clear history ─────────────────────────────────────────
+  function clearHistory() {
+    if (!confirm('Clear all saved sessions?')) return;
+    sessions = [];
+    sessionStorage.setItem('att_sessions', JSON.stringify(sessions));
+    renderHistory();
+  }
+
+  // ── Render history ────────────────────────────────────────
+  function renderHistory() {
+    const card = document.getElementById('history-card');
+    const list = document.getElementById('history-list');
+    if (!sessions.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    list.innerHTML = sessions.map(sess => {
+      const counts = { P: 0, T: 0, A: 0, E: 0 };
+      sess.students.forEach(s => { if (s.status && counts[s.status] !== undefined) counts[s.status]++; });
+      const badges = Object.entries(counts).filter(([,v]) => v > 0).map(([k, v]) =>
+        `<span class="hist-badge" style="background:${STATUS_COLORS[k]}22;color:${STATUS_COLORS[k]}">${STATUS[k][0]}: ${v}</span>`
+      ).join('');
+      return `
+        <li>
+          <div>
+            <strong>${escHtml(sess.course)}</strong>
+            <span class="hist-meta"> &nbsp;·&nbsp; ${sess.date}${sess.instr ? ' &nbsp;·&nbsp; ' + escHtml(sess.instr) : ''}</span>
+            <div class="hist-badges" style="margin-top:4px;">${badges}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <button class="btn btn-blue btn-sm"  onclick="loadSession(${sess.id})">Load</button>
+            <button class="btn btn-gray btn-sm"  onclick="deleteSession(${sess.id})">✕</button>
+          </div>
+        </li>`;
+    }).join('');
+  }
+
+  // ── Toast ─────────────────────────────────────────────────
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  // ── Helpers ───────────────────────────────────────────────
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  renderTable();
+  renderHistory();
+</script>
+</body>
+</html>
