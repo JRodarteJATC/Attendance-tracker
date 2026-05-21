@@ -18,16 +18,14 @@
     header .header-left { display: flex; align-items: center; gap: 14px; flex: 1; }
     header h1 { font-size: 1.45rem; font-weight: 700; }
     header p  { font-size: .85rem; opacity: .85; margin-top: 2px; }
-
     .settings-btn {
       background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.35);
       color: #fff; border-radius: 8px; padding: 8px 14px;
       font-size: .85rem; font-weight: 600; cursor: pointer;
-      display: flex; align-items: center; gap: 6px;
-      transition: background .2s; white-space: nowrap;
+      display: flex; align-items: center; gap: 6px; white-space: nowrap;
+      transition: background .2s;
     }
     .settings-btn:hover { background: rgba(255,255,255,.25); }
-
     .canvas-status-dot {
       width: 9px; height: 9px; border-radius: 50%;
       background: #a0aec0; display: inline-block; transition: background .3s;
@@ -42,15 +40,14 @@
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal {
-      background: #fff; border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      background: #fff; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.25);
       width: 100%; max-width: 480px; margin: 16px;
       transform: translateY(12px); transition: transform .2s;
     }
     .modal-overlay.open .modal { transform: translateY(0); }
     .modal-header {
-      background: linear-gradient(135deg, #c0392b, #922b21);
-      color: #fff; padding: 18px 22px; border-radius: 12px 12px 0 0;
+      background: linear-gradient(135deg,#c0392b,#922b21); color: #fff;
+      padding: 18px 22px; border-radius: 12px 12px 0 0;
       display: flex; align-items: center; justify-content: space-between;
     }
     .modal-header h2 { font-size: 1.05rem; font-weight: 700; }
@@ -58,7 +55,6 @@
     .modal-close:hover { opacity: 1; }
     .modal-body { padding: 22px; }
     .modal-footer { padding: 0 22px 20px; display: flex; gap: 10px; justify-content: flex-end; }
-
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: .82rem; font-weight: 700; color: #4a5568; margin-bottom: 5px; }
     .form-group input {
@@ -67,20 +63,13 @@
     }
     .form-group input:focus { border-color: #c0392b; }
     .form-hint { font-size: .76rem; color: #718096; margin-top: 4px; }
-
-    /* ── Info / result boxes ─────────── */
     .info-box {
-      background: #ebf8ff; border: 1px solid #bee3f8;
-      border-radius: 8px; padding: 12px 14px;
-      margin-bottom: 18px; font-size: .84rem; color: #2b6cb0;
+      background: #ebf8ff; border: 1px solid #bee3f8; border-radius: 8px;
+      padding: 12px 14px; margin-bottom: 18px; font-size: .84rem; color: #2b6cb0;
     }
-    .test-result { margin-top: 12px; padding: 10px 14px; border-radius: 7px; font-size: .85rem; font-weight: 600; display: none; }
-    .test-result.ok  { background: #d4edda; color: #155724; display: block; }
-    .test-result.err { background: #f8d7da; color: #721c24; display: block; }
 
     /* ── Main ───────────────────────── */
-    main { max-width: 1050px; margin: 0 auto; padding: 24px 16px 48px; }
-
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
     .card {
       background: #fff; border-radius: 10px;
       box-shadow: 0 1px 6px rgba(0,0,0,.1);
@@ -93,7 +82,7 @@
 
     /* ── Canvas banner ──────────────── */
     #canvas-banner {
-      background: linear-gradient(90deg, #1a5276, #2980b9); color: #fff;
+      background: linear-gradient(90deg,#1a5276,#2980b9); color: #fff;
       border-radius: 8px; padding: 12px 18px; margin-bottom: 20px;
       font-size: .88rem; display: flex; align-items: center; gap: 10px;
     }
@@ -109,13 +98,15 @@
     }
     .field-group input:focus { border-color: #c0392b; }
 
-    /* ── Roster ─────────────────────── */
-    .add-row { display: flex; gap: 10px; margin-bottom: 12px; }
+    /* ── Roster controls ────────────── */
+    .roster-controls { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-start; }
+    .add-row { display: flex; gap: 8px; flex: 1; min-width: 260px; }
     .add-row input {
       flex: 1; border: 1.5px solid #cbd5e0; border-radius: 6px;
       padding: 8px 12px; font-size: .9rem; outline: none; transition: border-color .2s;
     }
     .add-row input:focus { border-color: #c0392b; }
+    .roster-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
     /* ── Buttons ────────────────────── */
     .btn {
@@ -125,50 +116,107 @@
     }
     .btn:hover  { filter: brightness(1.08); }
     .btn:active { transform: scale(.97); }
-    .btn-red   { background: #c0392b; color: #fff; }
-    .btn-green { background: #27ae60; color: #fff; }
-    .btn-blue  { background: #2980b9; color: #fff; }
-    .btn-gray  { background: #e2e8f0; color: #4a5568; }
-    .btn-sm    { padding: 5px 10px; font-size: .78rem; }
+    .btn-red    { background: #c0392b; color: #fff; }
+    .btn-green  { background: #27ae60; color: #fff; }
+    .btn-blue   { background: #2980b9; color: #fff; }
+    .btn-gray   { background: #e2e8f0; color: #4a5568; }
+    .btn-purple { background: #6c3483; color: #fff; }
+    .btn-sm     { padding: 5px 10px; font-size: .78rem; }
 
-    /* ── Table ──────────────────────── */
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
-    thead th {
-      background: #922b21; color: #fff;
-      padding: 11px 12px; text-align: left;
-      font-size: .82rem; letter-spacing: .4px; white-space: nowrap;
-    }
-    thead th:first-child { border-radius: 6px 0 0 0; }
-    thead th:last-child  { border-radius: 0 6px 0 0; }
-    tbody tr { border-bottom: 1px solid #e2e8f0; transition: background .15s; }
-    tbody tr:last-child { border-bottom: none; }
-    tbody tr:hover { background: #fef9f9; }
-    td { padding: 10px 12px; vertical-align: middle; }
-    td.num { color: #718096; font-size: .82rem; width: 36px; text-align: center; }
-    td.name-cell { font-weight: 600; min-width: 160px; }
-    td.actions { text-align: right; white-space: nowrap; }
+    /* ── Student cards ──────────────── */
+    #student-list { display: flex; flex-direction: column; gap: 10px; }
 
-    /* ── Status buttons ─────────────── */
-    .status-group { display: flex; gap: 6px; flex-wrap: wrap; }
-    .status-btn {
-      border: 2px solid transparent; border-radius: 20px;
-      padding: 5px 12px; font-size: .78rem; font-weight: 700;
-      cursor: pointer; transition: all .15s;
-      background: #edf2f7; color: #4a5568;
+    .student-card {
+      border: 1.5px solid #e2e8f0; border-radius: 10px;
+      padding: 14px 16px; background: #fff;
+      transition: border-color .2s, box-shadow .2s;
     }
-    .status-btn:hover { filter: brightness(.95); }
-    .status-btn.active-P { background: #d4edda; color: #155724; border-color: #27ae60; }
-    .status-btn.active-T { background: #fff3cd; color: #856404; border-color: #f0a500; }
-    .status-btn.active-A { background: #f8d7da; color: #721c24; border-color: #c0392b; }
-    .status-btn.active-E { background: #d1ecf1; color: #0c5460; border-color: #17a2b8; }
+    .student-card:hover { border-color: #c0392b22; box-shadow: 0 2px 8px rgba(192,57,43,.08); }
+    .student-card.status-P { border-left: 4px solid #27ae60; }
+    .student-card.status-T { border-left: 4px solid #f0a500; }
+    .student-card.status-A { border-left: 4px solid #c0392b; }
+    .student-card.status-E { border-left: 4px solid #17a2b8; }
+
+    .student-card-top {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .student-num {
+      background: #edf2f7; color: #718096; border-radius: 50%;
+      width: 28px; height: 28px; display: flex; align-items: center;
+      justify-content: center; font-size: .78rem; font-weight: 700; flex-shrink: 0;
+    }
+    .student-name { font-weight: 700; font-size: 1rem; flex: 1; min-width: 120px; }
+
+    /* ── Radio choice group ─────────── */
+    .choice-group {
+      display: flex; gap: 8px; flex-wrap: wrap; flex: 2; min-width: 260px;
+    }
+    .choice-label {
+      display: flex; align-items: center; gap: 6px;
+      border: 2px solid #e2e8f0; border-radius: 8px;
+      padding: 6px 12px; cursor: pointer; font-size: .82rem; font-weight: 600;
+      transition: all .15s; background: #f7fafc; color: #4a5568;
+      user-select: none;
+    }
+    .choice-label:hover { border-color: #c0392b44; background: #fff5f5; }
+    .choice-label input[type="radio"] { display: none; }
+
+    /* Selected states */
+    .choice-label.sel-P { background: #d4edda; color: #155724; border-color: #27ae60; }
+    .choice-label.sel-T { background: #fff3cd; color: #856404; border-color: #f0a500; }
+    .choice-label.sel-A { background: #f8d7da; color: #721c24; border-color: #c0392b; }
+    .choice-label.sel-E { background: #d1ecf1; color: #0c5460; border-color: #17a2b8; }
+
+    /* Radio dot */
+    .radio-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 2px solid currentColor; display: inline-flex;
+      align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .radio-dot::after {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: currentColor; display: none;
+    }
+    .choice-label.sel-P .radio-dot::after,
+    .choice-label.sel-T .radio-dot::after,
+    .choice-label.sel-A .radio-dot::after,
+    .choice-label.sel-E .radio-dot::after { display: block; }
+
+    .student-delete {
+      background: none; border: none; cursor: pointer; color: #a0aec0;
+      font-size: 1rem; padding: 4px 6px; border-radius: 5px;
+      transition: color .15s, background .15s;
+    }
+    .student-delete:hover { color: #c0392b; background: #fff5f5; }
+
+    /* ── Time input row ─────────────── */
+    .time-row {
+      display: none; margin-top: 10px; padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+      align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .time-row.visible { display: flex; }
+    .time-row label { font-size: .82rem; font-weight: 600; color: #4a5568; white-space: nowrap; }
+    .time-row input[type="time"] {
+      border: 1.5px solid #cbd5e0; border-radius: 6px;
+      padding: 5px 10px; font-size: .88rem; outline: none; transition: border-color .2s;
+    }
+    .time-row input[type="time"]:focus { border-color: #c0392b; }
+
+    /* ── Duplicate alert ────────────── */
+    #dup-alert {
+      display: none; background: #fff3cd; border: 1px solid #f0a500;
+      color: #856404; border-radius: 7px; padding: 8px 14px;
+      font-size: .85rem; font-weight: 600; margin-bottom: 10px;
+    }
+    #dup-alert.show { display: block; }
 
     /* ── Summary ────────────────────── */
     .summary { display: flex; flex-wrap: wrap; gap: 12px; }
     .summary-chip {
       display: flex; align-items: center; gap: 8px;
       background: #f7fafc; border: 1.5px solid #e2e8f0;
-      border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 130px;
+      border-radius: 8px; padding: 10px 16px; flex: 1; min-width: 120px;
     }
     .chip-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
     .dot-P { background: #27ae60; } .dot-T { background: #f0a500; }
@@ -212,9 +260,8 @@
     /* ── Toast ──────────────────────── */
     #toast {
       position: fixed; bottom: 24px; right: 24px;
-      background: #1a202c; color: #fff;
-      padding: 12px 20px; border-radius: 8px;
-      font-size: .88rem; font-weight: 600;
+      background: #1a202c; color: #fff; padding: 12px 20px;
+      border-radius: 8px; font-size: .88rem; font-weight: 600;
       opacity: 0; transform: translateY(10px);
       transition: opacity .3s, transform .3s;
       pointer-events: none; z-index: 9999; max-width: 320px;
@@ -222,18 +269,20 @@
     #toast.show     { opacity: 1; transform: translateY(0); }
     #toast.toast-ok  { background: #276749; }
     #toast.toast-err { background: #c53030; }
+    #toast.toast-warn { background: #b7791f; }
 
     @media print {
       body { background: #fff; }
       header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-      .btn, .add-row, .export-row, #history-card, .settings-btn,
-      #canvas-banner, #paste-instructions { display: none !important; }
-      .card { box-shadow: none; border: 1px solid #ddd; }
+      .btn, .roster-controls, .export-row, #history-card,
+      .settings-btn, #canvas-banner, #paste-instructions,
+      .student-delete, .choice-group { display: none !important; }
+      .student-card { border: 1px solid #ddd !important; page-break-inside: avoid; }
       main { padding: 8px; }
     }
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       header h1 { font-size: 1.1rem; }
-      .status-btn { padding: 4px 8px; font-size: .72rem; }
+      .choice-label { padding: 5px 9px; font-size: .76rem; }
     }
   </style>
 </head>
@@ -268,28 +317,24 @@
     </div>
     <div class="modal-body">
       <div class="info-box">
-        <strong>How it works —</strong> No token or IT needed. When you hit
-        <strong>💾 Save Session</strong>, the attendance record is
-        <strong>copied to your clipboard</strong> and Canvas opens in a new tab.
-        Just paste and click <strong>Save &amp; Publish</strong>.
+        <strong>No token or IT needed.</strong> When you hit <strong>💾 Save Session</strong>,
+        attendance is copied to your clipboard and Canvas opens in a new tab —
+        just paste and click <strong>Save &amp; Publish</strong>.
       </div>
-
       <div class="form-group">
         <label>Canvas URL</label>
         <input id="cfg-url" type="url" placeholder="https://canvas.yourinstitution.edu" />
         <div class="form-hint">Your school's Canvas domain — no trailing slash.</div>
       </div>
-
       <div class="form-group">
         <label>Course ID</label>
         <input id="cfg-course" type="text" placeholder="e.g. 12345" />
         <div class="form-hint">The number in your course URL: canvas.edu/courses/<strong>12345</strong></div>
       </div>
-
       <div class="form-group">
         <label>Page Title Prefix <span style="font-weight:400;color:#a0aec0;">(optional)</span></label>
         <input id="cfg-folder" type="text" placeholder="e.g. Attendance Records" />
-        <div class="form-hint">Prepended to each page title. Defaults to "Attendance".</div>
+        <div class="form-hint">Prepended to each Canvas page title. Defaults to "Attendance".</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -301,13 +346,13 @@
 
 <main>
 
-  <!-- Canvas connected banner -->
+  <!-- Canvas ready banner -->
   <div id="canvas-banner" class="hidden">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     <span id="canvas-banner-text"></span>
   </div>
 
-  <!-- ── Session Details ──────────────────────────────────── -->
+  <!-- ── Session Details ─────────────────────────────────── -->
   <div class="card">
     <h2>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -333,37 +378,37 @@
     </div>
   </div>
 
-  <!-- ── Roster ───────────────────────────────────────────── -->
+  <!-- ── Roster ─────────────────────────────────────────── -->
   <div class="card">
     <h2>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Student Roster
     </h2>
-    <div class="add-row">
-      <input id="student-input" type="text" placeholder="Type a name and press Enter — or paste comma-separated names" />
-      <button class="btn btn-red" onclick="addStudent()">+ Add</button>
-      <button class="btn btn-gray" onclick="clearRoster()">Clear All</button>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th style="width:36px;">#</th>
-            <th>Student Name</th>
-            <th>Attendance Status</th>
-            <th style="text-align:right;">Remove</th>
-          </tr>
-        </thead>
-        <tbody id="student-tbody"></tbody>
-      </table>
-      <div id="empty-state" class="empty-state">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-        <p>No students yet — type a name above to get started.</p>
+
+    <div class="roster-controls">
+      <div class="add-row">
+        <input id="student-input" type="text"
+          placeholder="Type a name and press Enter — or paste comma-separated names" />
+        <button class="btn btn-red" onclick="addStudent()">+ Add</button>
       </div>
+      <div class="roster-actions">
+        <button class="btn btn-purple" onclick="sortAlpha()" title="Sort A → Z">⇅ A–Z</button>
+        <button class="btn btn-gray"   onclick="clearRoster()">🗑 Clear All</button>
+      </div>
+    </div>
+
+    <!-- Duplicate warning -->
+    <div id="dup-alert">⚠ <span id="dup-name"></span> is already on the roster.</div>
+
+    <!-- Student cards -->
+    <div id="student-list"></div>
+    <div id="empty-state" class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+      <p>No students yet — type a name above to get started.</p>
     </div>
   </div>
 
-  <!-- ── Summary ──────────────────────────────────────────── -->
+  <!-- ── Summary ────────────────────────────────────────── -->
   <div class="card">
     <h2>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -378,7 +423,7 @@
     </div>
   </div>
 
-  <!-- ── Export & Save ─────────────────────────────────────── -->
+  <!-- ── Export & Save ──────────────────────────────────── -->
   <div class="card">
     <h2>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -391,7 +436,6 @@
     </div>
     <p id="canvas-save-hint" style="font-size:.78rem;color:#718096;margin-top:10px;"></p>
 
-    <!-- Step-by-step paste guide — shown after Save Session -->
     <div id="paste-instructions">
       <h3>✅ Attendance copied to clipboard! Now in the Canvas tab:</h3>
       <ol>
@@ -399,11 +443,12 @@
         <li>Press <kbd>Ctrl</kbd>+<kbd>V</kbd> (Windows) &nbsp;or&nbsp; <kbd>⌘</kbd>+<kbd>V</kbd> (Mac)</li>
         <li>Click <strong>Save &amp; Publish</strong></li>
       </ol>
-      <button class="btn btn-gray btn-sm" style="margin-top:12px;" onclick="this.parentElement.style.display='none'">Dismiss</button>
+      <button class="btn btn-gray btn-sm" style="margin-top:12px;"
+        onclick="this.parentElement.style.display='none'">Dismiss</button>
     </div>
   </div>
 
-  <!-- ── Saved Sessions ────────────────────────────────────── -->
+  <!-- ── Saved Sessions ─────────────────────────────────── -->
   <div class="card" id="history-card" style="display:none;">
     <h2>
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
@@ -421,13 +466,165 @@
 
 <script>
 // ── State ──────────────────────────────────────────────────
-let students = [];
+let students = [];   // { id, name, status, arrivalTime, departureTime }
 let sessions = JSON.parse(localStorage.getItem('att_sessions') || '[]');
 
 const STATUS = { P: 'Present', T: 'Tardy', A: 'Absent', E: 'Early Departure' };
 const STATUS_COLORS = { P: '#27ae60', T: '#f0a500', A: '#c0392b', E: '#17a2b8' };
 
 document.getElementById('session-date').value = new Date().toISOString().split('T')[0];
+
+// ── Add student(s) ─────────────────────────────────────────
+function addStudent() {
+  const raw = document.getElementById('student-input').value;
+  const names = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+  if (!names.length) return;
+
+  let added = 0, dupes = [];
+
+  names.forEach(name => {
+    // Duplicate check (case-insensitive)
+    if (students.some(s => s.name.trim().toLowerCase() === name.toLowerCase())) {
+      dupes.push(name);
+      return;
+    }
+    students.push({ id: Date.now() + Math.random(), name, status: null, arrivalTime: '', departureTime: '' });
+    added++;
+  });
+
+  document.getElementById('student-input').value = '';
+
+  if (dupes.length) {
+    const alert = document.getElementById('dup-alert');
+    document.getElementById('dup-name').textContent =
+      dupes.length === 1 ? `"${dupes[0]}"` : dupes.map(d => `"${d}"`).join(', ');
+    alert.classList.add('show');
+    setTimeout(() => alert.classList.remove('show'), 4000);
+  }
+
+  if (added > 0) {
+    renderList();
+    toast(`Added ${added} student${added > 1 ? 's' : ''}`, 'ok');
+  } else {
+    toast('No new students added — duplicate detected', 'warn');
+  }
+}
+
+document.getElementById('student-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addStudent();
+});
+
+// ── Remove student ─────────────────────────────────────────
+function removeStudent(id) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  if (!confirm(`Remove "${s.name}" from the roster?`)) return;
+  students = students.filter(s => s.id !== id);
+  renderList();
+  toast(`"${s.name}" removed`, 'warn');
+}
+
+// ── Clear roster ───────────────────────────────────────────
+function clearRoster() {
+  if (!students.length) return;
+  if (confirm(`Remove all ${students.length} student(s) from the roster?`)) {
+    students = [];
+    renderList();
+    toast('Roster cleared');
+  }
+}
+
+// ── Sort A–Z ───────────────────────────────────────────────
+function sortAlpha() {
+  if (students.length < 2) { toast('Nothing to sort', 'warn'); return; }
+  students.sort((a, b) => a.name.localeCompare(b.name));
+  renderList();
+  toast('Sorted A → Z', 'ok');
+}
+
+// ── Set status ─────────────────────────────────────────────
+function setStatus(id, code) {
+  const s = students.find(s => s.id === id);
+  if (!s) return;
+  s.status = code;
+  // Clear irrelevant times when status changes
+  if (code !== 'T') s.arrivalTime   = '';
+  if (code !== 'E') s.departureTime = '';
+  renderList();
+}
+
+// ── Update time fields ─────────────────────────────────────
+function setTime(id, field, value) {
+  const s = students.find(s => s.id === id);
+  if (s) s[field] = value;
+  updateSummary();
+}
+
+// ── Render student cards ───────────────────────────────────
+function renderList() {
+  const list  = document.getElementById('student-list');
+  const empty = document.getElementById('empty-state');
+  list.innerHTML = '';
+
+  if (!students.length) { empty.style.display = 'block'; updateSummary(); return; }
+  empty.style.display = 'none';
+
+  students.forEach((s, i) => {
+    const card = document.createElement('div');
+    card.className = 'student-card' + (s.status ? ' status-' + s.status : '');
+    card.id = 'card-' + s.id;
+
+    // Build radio choices
+    const choices = Object.entries(STATUS).map(([code, label]) => {
+      const sel = s.status === code ? ' sel-' + code : '';
+      return `<label class="choice-label${sel}" onclick="setStatus(${s.id},'${code}')">
+        <input type="radio" name="status-${s.id}" value="${code}" ${s.status === code ? 'checked' : ''} />
+        <span class="radio-dot"></span>${label}
+      </label>`;
+    }).join('');
+
+    // Time row (Tardy = arrival, Early Departure = departure)
+    const showArrival   = s.status === 'T';
+    const showDeparture = s.status === 'E';
+    const timeRow = (showArrival || showDeparture) ? `
+      <div class="time-row visible">
+        ${showArrival ? `
+          <label>🕐 Arrival Time:</label>
+          <input type="time" value="${s.arrivalTime}"
+            onchange="setTime(${s.id},'arrivalTime',this.value)"
+            oninput="setTime(${s.id},'arrivalTime',this.value)" />
+          ${s.arrivalTime ? `<span style="font-size:.8rem;color:#856404;font-weight:600;">Arrived at ${fmt12(s.arrivalTime)}</span>` : ''}
+        ` : ''}
+        ${showDeparture ? `
+          <label>🚪 Departure Time:</label>
+          <input type="time" value="${s.departureTime}"
+            onchange="setTime(${s.id},'departureTime',this.value)"
+            oninput="setTime(${s.id},'departureTime',this.value)" />
+          ${s.departureTime ? `<span style="font-size:.8rem;color:#0c5460;font-weight:600;">Left at ${fmt12(s.departureTime)}</span>` : ''}
+        ` : ''}
+      </div>` : '';
+
+    card.innerHTML = `
+      <div class="student-card-top">
+        <div class="student-num">${i + 1}</div>
+        <div class="student-name">${escHtml(s.name)}</div>
+        <div class="choice-group">${choices}</div>
+        <button class="student-delete" onclick="removeStudent(${s.id})" title="Remove student">✕</button>
+      </div>
+      ${timeRow}`;
+
+    list.appendChild(card);
+  });
+
+  updateSummary();
+}
+
+// ── Summary ────────────────────────────────────────────────
+function updateSummary() {
+  const c = { P:0, T:0, A:0, E:0, U:0 };
+  students.forEach(s => { s.status ? c[s.status]++ : c.U++; });
+  Object.keys(c).forEach(k => { document.getElementById('count-' + k).textContent = c[k]; });
+}
 
 // ── Settings ───────────────────────────────────────────────
 function getSettings() {
@@ -437,7 +634,6 @@ function getSettings() {
     folder: localStorage.getItem('cv_canvas_folder') || 'Attendance'
   };
 }
-
 function openSettings() {
   const s = getSettings();
   document.getElementById('cfg-url').value    = s.url;
@@ -445,52 +641,44 @@ function openSettings() {
   document.getElementById('cfg-folder').value = s.folder !== 'Attendance' ? s.folder : '';
   document.getElementById('settings-modal').classList.add('open');
 }
-
 function closeSettings() {
   document.getElementById('settings-modal').classList.remove('open');
 }
-
 function saveSettings() {
   const url    = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
   const course = document.getElementById('cfg-course').value.trim();
   const folder = document.getElementById('cfg-folder').value.trim() || 'Attendance';
-
   if (!url || !course) { toast('Please fill in Canvas URL and Course ID', 'err'); return; }
-
   localStorage.setItem('cv_canvas_url',    url);
   localStorage.setItem('cv_canvas_course', course);
   localStorage.setItem('cv_canvas_folder', folder);
-
   closeSettings();
   updateCanvasUI();
   toast('Canvas settings saved! 🎉', 'ok');
 }
+document.getElementById('settings-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
 
 function updateCanvasUI() {
   const s      = getSettings();
   const dot    = document.getElementById('canvas-dot');
   const banner = document.getElementById('canvas-banner');
   const hint   = document.getElementById('canvas-save-hint');
-
   if (s.url && s.course) {
     dot.classList.add('connected');
     banner.classList.remove('hidden');
     document.getElementById('canvas-banner-text').textContent =
-      'Canvas ready — Save Session will copy attendance to your clipboard and open Canvas in a new tab.';
+      'Canvas ready — Save Session copies attendance to clipboard and opens Canvas in a new tab.';
     hint.textContent = '📋 One click: copies attendance + opens Canvas new page for you to paste & publish.';
   } else {
     dot.classList.remove('connected');
     banner.classList.add('hidden');
-    hint.textContent = 'Tip: add your Canvas URL and Course ID in ⚙ Settings to enable one-click Canvas publishing.';
+    hint.textContent = 'Add your Canvas URL and Course ID in ⚙ Settings to enable one-click Canvas publishing.';
   }
 }
 
-// Close modal on backdrop click
-document.getElementById('settings-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeSettings();
-});
-
-// ── Save Session ───────────────────────────────────────────
+// ── Save session ───────────────────────────────────────────
 async function saveSession() {
   if (!students.length) { toast('No students to save', 'err'); return; }
 
@@ -503,7 +691,6 @@ async function saveSession() {
     students: JSON.parse(JSON.stringify(students))
   };
 
-  // Always save locally
   sessions.unshift(session);
   if (sessions.length > 50) sessions.pop();
   localStorage.setItem('att_sessions', JSON.stringify(sessions));
@@ -511,32 +698,19 @@ async function saveSession() {
 
   const s = getSettings();
   if (s.url && s.course) {
-    // Build formatted HTML and copy to clipboard
     const html = buildPageHTML(session);
-
     try {
       await navigator.clipboard.writeText(html);
     } catch {
-      // Fallback for older browsers
-      const ta = Object.assign(document.createElement('textarea'), {
-        value: html, style: 'position:fixed;opacity:0'
-      });
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
+      const ta = Object.assign(document.createElement('textarea'), { value: html, style: 'position:fixed;opacity:0' });
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
     }
-
-    // Open Canvas new-page editor in a new tab
     const prefix = encodeURIComponent(`${s.folder}: ${session.course} — ${session.date}`);
     window.open(`${s.url}/courses/${s.course}/pages/new?title=${prefix}`, '_blank');
-
-    // Show paste instructions
     const panel = document.getElementById('paste-instructions');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     toast('Copied! Paste into Canvas & publish 🚀', 'ok');
-
   } else {
     toast('Session saved locally ✓', 'ok');
   }
@@ -544,8 +718,8 @@ async function saveSession() {
 
 // ── Build Canvas page HTML ─────────────────────────────────
 function buildPageHTML(session) {
-  const counts = { P:0, T:0, A:0, E:0, U:0 };
-  session.students.forEach(s => { s.status ? counts[s.status]++ : counts.U++; });
+  const c = { P:0, T:0, A:0, E:0, U:0 };
+  session.students.forEach(s => { s.status ? c[s.status]++ : c.U++; });
 
   const sc = {
     P:    { bg:'#d4edda', color:'#155724', label:'Present' },
@@ -556,12 +730,15 @@ function buildPageHTML(session) {
   };
 
   const rows = session.students.map((s, i) => {
-    const c = sc[s.status] || sc[null];
+    const style = sc[s.status] || sc[null];
+    let timeNote = '';
+    if (s.status === 'T' && s.arrivalTime)   timeNote = ` <small style="color:#856404;">(arrived ${fmt12(s.arrivalTime)})</small>`;
+    if (s.status === 'E' && s.departureTime) timeNote = ` <small style="color:#0c5460;">(left ${fmt12(s.departureTime)})</small>`;
     return `<tr>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;text-align:center;color:#6c757d;width:40px;">${i+1}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;font-weight:600;">${escHtml(s.name)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;text-align:center;">
-        <span style="background:${c.bg};color:${c.color};padding:3px 12px;border-radius:12px;font-size:.85em;font-weight:700;">${c.label}</span>
+        <span style="background:${style.bg};color:${style.color};padding:3px 12px;border-radius:12px;font-size:.85em;font-weight:700;">${style.label}</span>${timeNote}
       </td>
     </tr>`;
   }).join('');
@@ -569,29 +746,15 @@ function buildPageHTML(session) {
   return `<div style="font-family:Arial,sans-serif;max-width:720px;margin:0 auto;">
   <div style="background:linear-gradient(135deg,#c0392b,#922b21);color:#fff;padding:20px 24px;border-radius:8px 8px 0 0;">
     <h2 style="margin:0;font-size:1.3rem;">📋 Attendance Record</h2>
-    <p style="margin:4px 0 0;opacity:.85;font-size:.9rem;">
-      ${escHtml(session.course)}${session.instr ? ' · ' + escHtml(session.instr) : ''}${session.period ? ' · ' + escHtml(session.period) : ''}
-    </p>
+    <p style="margin:4px 0 0;opacity:.85;font-size:.9rem;">${escHtml(session.course)}${session.instr ? ' · '+escHtml(session.instr) : ''}${session.period ? ' · '+escHtml(session.period) : ''}</p>
   </div>
   <div style="background:#fff;border:1px solid #dee2e6;border-top:none;padding:20px 24px;border-radius:0 0 8px 8px;">
     <p style="font-size:.9rem;color:#6c757d;margin-bottom:16px;">📅 <strong>${session.date}</strong></p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
-      <div style="flex:1;min-width:110px;background:#d4edda;color:#155724;border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:2rem;font-weight:700;line-height:1;">${counts.P}</div>
-        <div style="font-size:.78rem;margin-top:2px;">Present</div>
-      </div>
-      <div style="flex:1;min-width:110px;background:#fff3cd;color:#856404;border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:2rem;font-weight:700;line-height:1;">${counts.T}</div>
-        <div style="font-size:.78rem;margin-top:2px;">Tardy</div>
-      </div>
-      <div style="flex:1;min-width:110px;background:#f8d7da;color:#721c24;border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:2rem;font-weight:700;line-height:1;">${counts.A}</div>
-        <div style="font-size:.78rem;margin-top:2px;">Absent</div>
-      </div>
-      <div style="flex:1;min-width:110px;background:#d1ecf1;color:#0c5460;border-radius:8px;padding:12px;text-align:center;">
-        <div style="font-size:2rem;font-weight:700;line-height:1;">${counts.E}</div>
-        <div style="font-size:.78rem;margin-top:2px;">Early Departure</div>
-      </div>
+      <div style="flex:1;min-width:110px;background:#d4edda;color:#155724;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.P}</div><div style="font-size:.78rem;">Present</div></div>
+      <div style="flex:1;min-width:110px;background:#fff3cd;color:#856404;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.T}</div><div style="font-size:.78rem;">Tardy</div></div>
+      <div style="flex:1;min-width:110px;background:#f8d7da;color:#721c24;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.A}</div><div style="font-size:.78rem;">Absent</div></div>
+      <div style="flex:1;min-width:110px;background:#d1ecf1;color:#0c5460;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.E}</div><div style="font-size:.78rem;">Early Departure</div></div>
     </div>
     <table style="width:100%;border-collapse:collapse;">
       <thead>
@@ -603,77 +766,9 @@ function buildPageHTML(session) {
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    <p style="font-size:.74rem;color:#adb5bd;margin-top:14px;text-align:right;">
-      CV JATC Attendance Tracker · Generated ${new Date().toLocaleString()}
-    </p>
+    <p style="font-size:.74rem;color:#adb5bd;margin-top:14px;text-align:right;">CV JATC Attendance Tracker · Generated ${new Date().toLocaleString()}</p>
   </div>
 </div>`;
-}
-
-// ── Roster ─────────────────────────────────────────────────
-function addStudent() {
-  const raw = document.getElementById('student-input').value;
-  const names = raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-  if (!names.length) return;
-  names.forEach(name => students.push({ id: Date.now() + Math.random(), name, status: null }));
-  document.getElementById('student-input').value = '';
-  renderTable();
-  toast(`Added ${names.length} student${names.length > 1 ? 's' : ''}`, 'ok');
-}
-
-document.getElementById('student-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addStudent();
-});
-
-function removeStudent(id) {
-  students = students.filter(s => s.id !== id);
-  renderTable();
-}
-
-function clearRoster() {
-  if (!students.length) return;
-  if (confirm('Remove all students from the roster?')) { students = []; renderTable(); }
-}
-
-function setStatus(id, code) {
-  const s = students.find(s => s.id === id);
-  if (!s) return;
-  s.status = s.status === code ? null : code;
-  renderTable();
-}
-
-// ── Render ─────────────────────────────────────────────────
-function renderTable() {
-  const tbody = document.getElementById('student-tbody');
-  const empty = document.getElementById('empty-state');
-  tbody.innerHTML = '';
-  if (!students.length) { empty.style.display = 'block'; updateSummary(); return; }
-  empty.style.display = 'none';
-  students.forEach((s, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="num">${i+1}</td>
-      <td class="name-cell">${escHtml(s.name)}</td>
-      <td>
-        <div class="status-group">
-          ${Object.entries(STATUS).map(([code, label]) =>
-            `<button class="status-btn ${s.status === code ? 'active-' + code : ''}"
-              onclick="setStatus(${s.id},'${code}')">${label}</button>`
-          ).join('')}
-        </div>
-      </td>
-      <td class="actions">
-        <button class="btn btn-gray btn-sm" onclick="removeStudent(${s.id})">✕</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-  updateSummary();
-}
-
-function updateSummary() {
-  const c = { P:0, T:0, A:0, E:0, U:0 };
-  students.forEach(s => { s.status ? c[s.status]++ : c.U++; });
-  Object.keys(c).forEach(k => { document.getElementById('count-' + k).textContent = c[k]; });
 }
 
 // ── Export CSV ─────────────────────────────────────────────
@@ -687,9 +782,12 @@ function exportCSV() {
   let csv = `"Student Attendance Report"\n"Course","${course}"\n"Date","${date}"\n`;
   if (instr)  csv += `"Instructor","${instr}"\n`;
   if (period) csv += `"Period","${period}"\n`;
-  csv += `\n"#","Student Name","Status"\n`;
+  csv += `\n"#","Student Name","Status","Arrival Time","Departure Time"\n`;
   students.forEach((s, i) => {
-    csv += `"${i+1}","${s.name.replace(/"/g,'""')}","${s.status ? STATUS[s.status] : 'Not Marked'}"\n`;
+    const statusLabel = s.status ? STATUS[s.status] : 'Not Marked';
+    const arrival     = (s.status === 'T' && s.arrivalTime)   ? fmt12(s.arrivalTime)   : '';
+    const departure   = (s.status === 'E' && s.departureTime) ? fmt12(s.departureTime) : '';
+    csv += `"${i+1}","${s.name.replace(/"/g,'""')}","${statusLabel}","${arrival}","${departure}"\n`;
   });
 
   const a = Object.assign(document.createElement('a'), {
@@ -711,24 +809,21 @@ function loadSession(id) {
   document.getElementById('class-name').value   = sess.course;
   document.getElementById('instructor').value   = sess.instr  || '';
   document.getElementById('period').value       = sess.period || '';
-  renderTable();
+  renderList();
   window.scrollTo({ top: 0, behavior: 'smooth' });
   toast('Session loaded', 'ok');
 }
-
 function deleteSession(id) {
   sessions = sessions.filter(s => s.id !== id);
   localStorage.setItem('att_sessions', JSON.stringify(sessions));
   renderHistory();
+  toast('Session deleted');
 }
-
 function clearHistory() {
   if (!confirm('Clear all saved sessions?')) return;
-  sessions = [];
-  localStorage.setItem('att_sessions', JSON.stringify(sessions));
+  sessions = []; localStorage.setItem('att_sessions', JSON.stringify(sessions));
   renderHistory();
 }
-
 function renderHistory() {
   const card = document.getElementById('history-card');
   const list = document.getElementById('history-list');
@@ -743,7 +838,7 @@ function renderHistory() {
     return `<li>
       <div>
         <strong>${escHtml(sess.course)}</strong>
-        <span class="hist-meta"> · ${sess.date}${sess.instr ? ' · ' + escHtml(sess.instr) : ''}</span>
+        <span class="hist-meta"> · ${sess.date}${sess.instr ? ' · '+escHtml(sess.instr) : ''}</span>
         <div class="hist-badges">${badges}</div>
       </div>
       <div style="display:flex;gap:8px;flex-shrink:0;">
@@ -758,7 +853,7 @@ function renderHistory() {
 function toast(msg, type) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = 'show' + (type === 'ok' ? ' toast-ok' : type === 'err' ? ' toast-err' : '');
+  el.className = 'show' + (type === 'ok' ? ' toast-ok' : type === 'err' ? ' toast-err' : type === 'warn' ? ' toast-warn' : '');
   clearTimeout(el._t);
   el._t = setTimeout(() => { el.className = ''; }, 3200);
 }
@@ -767,10 +862,17 @@ function toast(msg, type) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+function fmt12(t) {
+  if (!t) return '';
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12  = h % 12 || 12;
+  return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
+}
 
 // ── Init ───────────────────────────────────────────────────
 updateCanvasUI();
-renderTable();
+renderList();
 renderHistory();
 </script>
 </body>
