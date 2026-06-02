@@ -197,11 +197,17 @@
     }
     .time-row.visible { display: flex; }
     .time-row label { font-size: .82rem; font-weight: 600; color: #4a5568; white-space: nowrap; }
+    .time-print { display: none; font-size:.85rem; font-weight:700; }
     .time-row input[type="time"] {
       border: 1.5px solid #cbd5e0; border-radius: 6px;
       padding: 5px 10px; font-size: .88rem; outline: none; transition: border-color .2s;
     }
     .time-row input[type="time"]:focus { border-color: #c0392b; }
+    .reason-field {
+      width: 100%; max-width: 420px; padding: 5px 10px; border: 1px solid #ced4da;
+      border-radius: 6px; font-size: .85rem; margin-top: 4px; font-family: inherit;
+    }
+    .reason-field:focus { outline: none; border-color: #c0392b; }
 
     /* ── Duplicate alert ────────────── */
     #dup-alert {
@@ -304,7 +310,8 @@
   </div>
   <button class="settings-btn" onclick="openSettings()">
     <span class="canvas-status-dot" id="canvas-dot"></span>
-    ⚙ Canvas Settings
+    ⚙ Settings
+    <span id="gh-dot" title="GitHub" style="width:9px;height:9px;border-radius:50%;background:#a0aec0;display:inline-block;margin-left:2px;transition:background .3s;"></span>
   </button>
 </header>
 
@@ -312,10 +319,13 @@
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
     <div class="modal-header">
-      <h2>⚙ Canvas Settings</h2>
+      <h2>⚙ Settings</h2>
       <button class="modal-close" onclick="closeSettings()">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- Canvas section -->
+      <div style="font-size:.8rem;font-weight:800;color:#922b21;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">📋 Canvas LMS</div>
       <div class="info-box">
         <strong>No token or IT needed.</strong> When you hit <strong>💾 Save Session</strong>,
         attendance is copied to your clipboard and Canvas opens in a new tab —
@@ -335,6 +345,31 @@
         <label>Page Title Prefix <span style="font-weight:400;color:#a0aec0;">(optional)</span></label>
         <input id="cfg-folder" type="text" placeholder="e.g. Attendance Records" />
         <div class="form-hint">Prepended to each Canvas page title. Defaults to "Attendance".</div>
+      </div>
+
+      <!-- Divider -->
+      <hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0;" />
+
+      <!-- GitHub section -->
+      <div style="font-size:.8rem;font-weight:800;color:#24292f;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;">🐙 GitHub — Late / Early Departure Log</div>
+      <div class="info-box" style="background:#f6f8fa;border-color:#d0d7de;color:#24292f;">
+        When you click <strong>⬇ Export CSV</strong>, tardies and early departures are also pushed to your GitHub repo as a running log — one CSV per session, versioned automatically.
+        <br><br>
+        <strong>How to get a token:</strong> GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → check <strong>repo</strong> scope.
+      </div>
+      <div class="form-group">
+        <label>Personal Access Token</label>
+        <input id="cfg-gh-token" type="password" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off" />
+        <div class="form-hint">Stored only in your browser — never sent anywhere except GitHub.</div>
+      </div>
+      <div class="form-group">
+        <label>GitHub Username / Org</label>
+        <input id="cfg-gh-user" type="text" placeholder="e.g. jrodarte" />
+      </div>
+      <div class="form-group">
+        <label>Repository Name</label>
+        <input id="cfg-gh-repo" type="text" placeholder="e.g. attendance-records" />
+        <div class="form-hint">Must already exist on GitHub. Files will be saved under <code>late-early/</code>.</div>
       </div>
     </div>
     <div class="modal-footer">
@@ -467,6 +502,7 @@
 <script>
 // ── State ──────────────────────────────────────────────────
 let students = [];   // { id, name, status, arrivalTime, departureTime }
+let _uid = 1;        // integer counter — avoids float precision bugs
 let sessions = JSON.parse(localStorage.getItem('att_sessions') || '[]');
 
 const STATUS = { P: 'Present', T: 'Tardy', A: 'Absent', E: 'Early Departure' };
@@ -488,7 +524,7 @@ function addStudent() {
       dupes.push(name);
       return;
     }
-    students.push({ id: Date.now() + Math.random(), name, status: null, arrivalTime: '', departureTime: '' });
+    students.push({ id: _uid++, name, status: null, arrivalTime: '', departureTime: '', lateReason: '', earlyReason: '', makeupTime: '' });
     added++;
   });
 
@@ -548,8 +584,9 @@ function setStatus(id, code) {
   if (!s) return;
   s.status = code;
   // Clear irrelevant times when status changes
-  if (code !== 'T') s.arrivalTime   = '';
-  if (code !== 'E') s.departureTime = '';
+  if (code !== 'T') { s.arrivalTime  = ''; s.lateReason  = ''; }
+  if (code !== 'E') { s.departureTime = ''; s.earlyReason = ''; }
+  if (code !== 'T' && code !== 'E') s.makeupTime = '';
   renderList();
 }
 
@@ -589,18 +626,42 @@ function renderList() {
     const timeRow = (showArrival || showDeparture) ? `
       <div class="time-row visible">
         ${showArrival ? `
-          <label>🕐 Arrival Time:</label>
-          <input type="time" value="${s.arrivalTime}"
-            onchange="setTime(${s.id},'arrivalTime',this.value)"
-            oninput="setTime(${s.id},'arrivalTime',this.value)" />
-          ${s.arrivalTime ? `<span style="font-size:.8rem;color:#856404;font-weight:600;">Arrived at ${fmt12(s.arrivalTime)}</span>` : ''}
+          <label class="time-input-label">🕐 Arrival Time:</label>
+          <input type="time" step="60" value="${s.arrivalTime}"
+            class="time-field" data-id="${s.id}" data-field="arrivalTime" />
+          <span class="time-display" data-field="arrivalTime" style="font-size:.8rem;color:#856404;font-weight:600;${s.arrivalTime ? '' : 'display:none'}">Arrived at ${s.arrivalTime ? fmt12(s.arrivalTime) : ''}</span>
+          <span class="time-print" data-field="arrivalTime" style="color:#856404;">🕐 Arrived at: ${s.arrivalTime ? fmt12(s.arrivalTime) : 'Time not recorded'}</span>
+          <br style="display:none;" class="reason-br-arr">
+          <label class="time-input-label" style="margin-top:6px;">📝 Reason for late arrival:</label>
+          <input type="text" placeholder="Enter reason…" maxlength="120"
+            class="reason-field" data-id="${s.id}" data-field="lateReason"
+            value="${escHtml(s.lateReason)}" />
+          <span class="time-print reason-print" data-field="lateReason" style="color:#856404;display:none;">📝 Late reason: ${s.lateReason ? escHtml(s.lateReason) : '—'}</span>
+          <label class="time-input-label" style="margin-top:6px;">🔄 Make-up Time:</label>
+          <input type="time" step="60" placeholder="--:--"
+            class="time-field" data-id="${s.id}" data-field="makeupTime"
+            value="${s.makeupTime}" />
+          <span class="time-display" data-field="makeupTime" style="font-size:.8rem;color:#155724;font-weight:600;${s.makeupTime ? '' : 'display:none'}">Make-up: ${s.makeupTime ? fmt12(s.makeupTime) : ''}</span>
+          <span class="time-print" data-field="makeupTime" style="color:#155724;display:none;">🔄 Make-up at: ${s.makeupTime ? fmt12(s.makeupTime) : 'Not scheduled'}</span>
         ` : ''}
         ${showDeparture ? `
-          <label>🚪 Departure Time:</label>
-          <input type="time" value="${s.departureTime}"
-            onchange="setTime(${s.id},'departureTime',this.value)"
-            oninput="setTime(${s.id},'departureTime',this.value)" />
-          ${s.departureTime ? `<span style="font-size:.8rem;color:#0c5460;font-weight:600;">Left at ${fmt12(s.departureTime)}</span>` : ''}
+          <label class="time-input-label">🚪 Departure Time:</label>
+          <input type="time" step="60" value="${s.departureTime}"
+            class="time-field" data-id="${s.id}" data-field="departureTime" />
+          <span class="time-display" data-field="departureTime" style="font-size:.8rem;color:#0c5460;font-weight:600;${s.departureTime ? '' : 'display:none'}">Left at ${s.departureTime ? fmt12(s.departureTime) : ''}</span>
+          <span class="time-print" data-field="departureTime" style="color:#0c5460;">🚪 Departed at: ${s.departureTime ? fmt12(s.departureTime) : 'Time not recorded'}</span>
+          <br style="display:none;" class="reason-br-dep">
+          <label class="time-input-label" style="margin-top:6px;">📝 Reason for early departure:</label>
+          <input type="text" placeholder="Enter reason…" maxlength="120"
+            class="reason-field" data-id="${s.id}" data-field="earlyReason"
+            value="${escHtml(s.earlyReason)}" />
+          <span class="time-print reason-print" data-field="earlyReason" style="color:#0c5460;display:none;">📝 Early departure reason: ${s.earlyReason ? escHtml(s.earlyReason) : '—'}</span>
+          <label class="time-input-label" style="margin-top:6px;">🔄 Make-up Time:</label>
+          <input type="time" step="60" placeholder="--:--"
+            class="time-field" data-id="${s.id}" data-field="makeupTime"
+            value="${s.makeupTime}" />
+          <span class="time-display" data-field="makeupTime" style="font-size:.8rem;color:#155724;font-weight:600;${s.makeupTime ? '' : 'display:none'}">Make-up: ${s.makeupTime ? fmt12(s.makeupTime) : ''}</span>
+          <span class="time-print" data-field="makeupTime" style="color:#155724;display:none;">🔄 Make-up at: ${s.makeupTime ? fmt12(s.makeupTime) : 'Not scheduled'}</span>
         ` : ''}
       </div>` : '';
 
@@ -629,32 +690,44 @@ function updateSummary() {
 // ── Settings ───────────────────────────────────────────────
 function getSettings() {
   return {
-    url:    localStorage.getItem('cv_canvas_url')    || '',
-    course: localStorage.getItem('cv_canvas_course') || '',
-    folder: localStorage.getItem('cv_canvas_folder') || 'Attendance'
+    url:     localStorage.getItem('cv_canvas_url')    || '',
+    course:  localStorage.getItem('cv_canvas_course') || '',
+    folder:  localStorage.getItem('cv_canvas_folder') || 'Attendance',
+    ghToken: localStorage.getItem('cv_gh_token')      || '',
+    ghUser:  localStorage.getItem('cv_gh_user')       || '',
+    ghRepo:  localStorage.getItem('cv_gh_repo')       || ''
   };
 }
 function openSettings() {
   const s = getSettings();
-  document.getElementById('cfg-url').value    = s.url;
-  document.getElementById('cfg-course').value = s.course;
-  document.getElementById('cfg-folder').value = s.folder !== 'Attendance' ? s.folder : '';
+  document.getElementById('cfg-url').value      = s.url;
+  document.getElementById('cfg-course').value   = s.course;
+  document.getElementById('cfg-folder').value   = s.folder !== 'Attendance' ? s.folder : '';
+  document.getElementById('cfg-gh-token').value = s.ghToken;
+  document.getElementById('cfg-gh-user').value  = s.ghUser;
+  document.getElementById('cfg-gh-repo').value  = s.ghRepo;
   document.getElementById('settings-modal').classList.add('open');
 }
 function closeSettings() {
   document.getElementById('settings-modal').classList.remove('open');
 }
 function saveSettings() {
-  const url    = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
-  const course = document.getElementById('cfg-course').value.trim();
-  const folder = document.getElementById('cfg-folder').value.trim() || 'Attendance';
+  const url     = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+  const course  = document.getElementById('cfg-course').value.trim();
+  const folder  = document.getElementById('cfg-folder').value.trim() || 'Attendance';
+  const ghToken = document.getElementById('cfg-gh-token').value.trim();
+  const ghUser  = document.getElementById('cfg-gh-user').value.trim();
+  const ghRepo  = document.getElementById('cfg-gh-repo').value.trim();
   if (!url || !course) { toast('Please fill in Canvas URL and Course ID', 'err'); return; }
   localStorage.setItem('cv_canvas_url',    url);
   localStorage.setItem('cv_canvas_course', course);
   localStorage.setItem('cv_canvas_folder', folder);
+  localStorage.setItem('cv_gh_token',      ghToken);
+  localStorage.setItem('cv_gh_user',       ghUser);
+  localStorage.setItem('cv_gh_repo',       ghRepo);
   closeSettings();
   updateCanvasUI();
-  toast('Canvas settings saved! 🎉', 'ok');
+  toast('Settings saved! 🎉', 'ok');
 }
 document.getElementById('settings-modal').addEventListener('click', function(e) {
   if (e.target === this) closeSettings();
@@ -663,6 +736,7 @@ document.getElementById('settings-modal').addEventListener('click', function(e) 
 function updateCanvasUI() {
   const s      = getSettings();
   const dot    = document.getElementById('canvas-dot');
+  const ghDot  = document.getElementById('gh-dot');
   const banner = document.getElementById('canvas-banner');
   const hint   = document.getElementById('canvas-save-hint');
   if (s.url && s.course) {
@@ -675,6 +749,74 @@ function updateCanvasUI() {
     dot.classList.remove('connected');
     banner.classList.add('hidden');
     hint.textContent = 'Add your Canvas URL and Course ID in ⚙ Settings to enable one-click Canvas publishing.';
+  }
+  // GitHub dot
+  if (s.ghToken && s.ghUser && s.ghRepo) {
+    ghDot.style.background = '#48bb78';
+    ghDot.title = `GitHub: ${s.ghUser}/${s.ghRepo}`;
+  } else {
+    ghDot.style.background = '#a0aec0';
+    ghDot.title = 'GitHub not configured';
+  }
+}
+
+// ── Push late/early log to GitHub ─────────────────────────
+async function pushToGitHub(date, course, instr, period, flaggedStudents) {
+  const s = getSettings();
+  if (!s.ghToken || !s.ghUser || !s.ghRepo) return; // not configured — silently skip
+
+  if (!flaggedStudents.length) {
+    toast('No late/early departures to log on GitHub', 'warn');
+    return;
+  }
+
+  // Build CSV content — only late/early rows
+  let csv = `"Late & Early Departure Log"\n"Course","${course}"\n"Date","${date}"\n`;
+  if (instr)  csv += `"Instructor","${instr}"\n`;
+  if (period) csv += `"Period","${period}"\n`;
+  csv += `\n"#","Student Name","Status","Arrival Time","Late Reason","Departure Time","Early Departure Reason","Make-up Time","Make-up Scheduled"\n`;
+  flaggedStudents.forEach((s, i) => {
+    const statusLabel = STATUS[s.status];
+    const arrival   = (s.status === 'T' && s.arrivalTime)   ? fmt12(s.arrivalTime)   : '';
+    const lateRsn   = (s.status === 'T' && s.lateReason)    ? s.lateReason.replace(/"/g,'""')  : '';
+    const departure = (s.status === 'E' && s.departureTime) ? fmt12(s.departureTime) : '';
+    const earlyRsn  = (s.status === 'E' && s.earlyReason)   ? s.earlyReason.replace(/"/g,'""') : '';
+    const makeup    = s.makeupTime ? fmt12(s.makeupTime) : '';
+    const makeupSch = s.makeupTime ? 'Yes' : 'No';
+    csv += `"${i+1}","${s.name.replace(/"/g,'""')}","${statusLabel}","${arrival}","${lateRsn}","${departure}","${earlyRsn}","${makeup}","${makeupSch}"\n`;
+  });
+
+  const content   = btoa(unescape(encodeURIComponent(csv)));
+  const filename  = `late-early/${date}_${course.replace(/[^a-z0-9]/gi,'_')}.csv`;
+  const apiURL    = `https://api.github.com/repos/${s.ghUser}/${s.ghRepo}/contents/${filename}`;
+  const headers   = { 'Authorization': `token ${s.ghToken}`, 'Content-Type': 'application/json' };
+
+  try {
+    // Check if file already exists (need its SHA to update)
+    let sha;
+    const check = await fetch(apiURL, { headers });
+    if (check.ok) { const j = await check.json(); sha = j.sha; }
+
+    const body = {
+      message: `Attendance log: ${course} — ${date}`,
+      content,
+      ...(sha ? { sha } : {})
+    };
+
+    const res = await fetch(apiURL, { method: 'PUT', headers, body: JSON.stringify(body) });
+    if (!res.ok) {
+      const err = await res.json();
+      toast(`GitHub error: ${err.message}`, 'err');
+      return;
+    }
+    const j = await res.json();
+    toast(`GitHub log saved! (${flaggedStudents.length} student${flaggedStudents.length > 1 ? 's' : ''}) 🐙`, 'ok');
+    // Show link in hint area
+    const hint = document.getElementById('canvas-save-hint');
+    hint.innerHTML = `🐙 GitHub log: <a href="${j.content.html_url}" target="_blank" style="color:#2980b9;">${filename}</a>`;
+  } catch(e) {
+    toast('GitHub push failed — check your token & repo name', 'err');
+    console.error(e);
   }
 }
 
@@ -720,10 +862,12 @@ async function saveSession() {
 function buildPageHTML(session) {
   const c = { P:0, T:0, A:0, E:0, U:0 };
   session.students.forEach(s => { s.status ? c[s.status]++ : c.U++; });
+  // Tardy/Late counts as Present in the exported output
+  c.P += c.T; c.T = 0;
 
   const sc = {
     P:    { bg:'#d4edda', color:'#155724', label:'Present' },
-    T:    { bg:'#fff3cd', color:'#856404', label:'Tardy' },
+    T:    { bg:'#d4edda', color:'#155724', label:'Present' },
     A:    { bg:'#f8d7da', color:'#721c24', label:'Absent' },
     E:    { bg:'#d1ecf1', color:'#0c5460', label:'Early Departure' },
     null: { bg:'#f8f9fa', color:'#6c757d', label:'Not Marked' }
@@ -731,14 +875,11 @@ function buildPageHTML(session) {
 
   const rows = session.students.map((s, i) => {
     const style = sc[s.status] || sc[null];
-    let timeNote = '';
-    if (s.status === 'T' && s.arrivalTime)   timeNote = ` <small style="color:#856404;">(arrived ${fmt12(s.arrivalTime)})</small>`;
-    if (s.status === 'E' && s.departureTime) timeNote = ` <small style="color:#0c5460;">(left ${fmt12(s.departureTime)})</small>`;
     return `<tr>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;text-align:center;color:#6c757d;width:40px;">${i+1}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;font-weight:600;">${escHtml(s.name)}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e9ecef;text-align:center;">
-        <span style="background:${style.bg};color:${style.color};padding:3px 12px;border-radius:12px;font-size:.85em;font-weight:700;">${style.label}</span>${timeNote}
+        <span style="background:${style.bg};color:${style.color};padding:3px 12px;border-radius:12px;font-size:.85em;font-weight:700;">${style.label}</span>
       </td>
     </tr>`;
   }).join('');
@@ -752,7 +893,6 @@ function buildPageHTML(session) {
     <p style="font-size:.9rem;color:#6c757d;margin-bottom:16px;">📅 <strong>${session.date}</strong></p>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
       <div style="flex:1;min-width:110px;background:#d4edda;color:#155724;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.P}</div><div style="font-size:.78rem;">Present</div></div>
-      <div style="flex:1;min-width:110px;background:#fff3cd;color:#856404;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.T}</div><div style="font-size:.78rem;">Tardy</div></div>
       <div style="flex:1;min-width:110px;background:#f8d7da;color:#721c24;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.A}</div><div style="font-size:.78rem;">Absent</div></div>
       <div style="flex:1;min-width:110px;background:#d1ecf1;color:#0c5460;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:2rem;font-weight:700;">${c.E}</div><div style="font-size:.78rem;">Early Departure</div></div>
     </div>
@@ -772,7 +912,7 @@ function buildPageHTML(session) {
 }
 
 // ── Export CSV ─────────────────────────────────────────────
-function exportCSV() {
+async function exportCSV() {
   if (!students.length) { toast('No students to export', 'err'); return; }
   const date   = document.getElementById('session-date').value || 'Unknown';
   const course = document.getElementById('class-name').value   || 'Unknown Course';
@@ -782,12 +922,15 @@ function exportCSV() {
   let csv = `"Student Attendance Report"\n"Course","${course}"\n"Date","${date}"\n`;
   if (instr)  csv += `"Instructor","${instr}"\n`;
   if (period) csv += `"Period","${period}"\n`;
-  csv += `\n"#","Student Name","Status","Arrival Time","Departure Time"\n`;
+  csv += `\n"#","Student Name","Status","Arrival Time","Late Reason","Departure Time","Early Departure Reason","Make-up Time"\n`;
   students.forEach((s, i) => {
     const statusLabel = s.status ? STATUS[s.status] : 'Not Marked';
     const arrival     = (s.status === 'T' && s.arrivalTime)   ? fmt12(s.arrivalTime)   : '';
+    const lateRsn     = (s.status === 'T' && s.lateReason)    ? s.lateReason.replace(/"/g,'""')  : '';
     const departure   = (s.status === 'E' && s.departureTime) ? fmt12(s.departureTime) : '';
-    csv += `"${i+1}","${s.name.replace(/"/g,'""')}","${statusLabel}","${arrival}","${departure}"\n`;
+    const earlyRsn    = (s.status === 'E' && s.earlyReason)   ? s.earlyReason.replace(/"/g,'""') : '';
+    const makeup      = ((s.status === 'T' || s.status === 'E') && s.makeupTime) ? fmt12(s.makeupTime) : '';
+    csv += `"${i+1}","${s.name.replace(/"/g,'""')}","${statusLabel}","${arrival}","${lateRsn}","${departure}","${earlyRsn}","${makeup}"\n`;
   });
 
   const a = Object.assign(document.createElement('a'), {
@@ -796,6 +939,10 @@ function exportCSV() {
   });
   a.click();
   toast('CSV exported!', 'ok');
+
+  // Push late/early departures to GitHub if configured
+  const flagged = students.filter(s => s.status === 'T' || s.status === 'E');
+  await pushToGitHub(date, course, instr, period, flagged);
 }
 
 function exportPrint() { window.print(); }
@@ -869,6 +1016,47 @@ function fmt12(t) {
   const h12  = h % 12 || 12;
   return `${h12}:${String(m).padStart(2,'0')} ${ampm}`;
 }
+
+// ── Delegated time-field + reason-field listener ──────────
+document.getElementById('student-list').addEventListener('input', function(e) {
+  const isTime   = e.target.classList.contains('time-field');
+  const isReason = e.target.classList.contains('reason-field');
+  if (!isTime && !isReason) return;
+  const id    = parseInt(e.target.dataset.id, 10);
+  const field = e.target.dataset.field;
+  const s     = students.find(s => s.id === id);
+  if (s) {
+    s[field] = e.target.value;
+    // Refresh just the time display span without full re-render
+    const card = document.getElementById('card-' + id);
+    if (card) {
+      const spans = card.querySelectorAll('.time-display');
+      spans.forEach(sp => {
+        if (sp.dataset.field === 'arrivalTime') {
+          sp.textContent   = s.arrivalTime   ? 'Arrived at '  + fmt12(s.arrivalTime)   : '';
+          sp.style.display = s.arrivalTime   ? '' : 'none';
+        }
+        if (sp.dataset.field === 'departureTime') {
+          sp.textContent   = s.departureTime ? 'Left at '     + fmt12(s.departureTime) : '';
+          sp.style.display = s.departureTime ? '' : 'none';
+        }
+      });
+      const pArr  = card.querySelector('.time-print[data-field="arrivalTime"]');
+      const pDep  = card.querySelector('.time-print[data-field="departureTime"]');
+      const pLate   = card.querySelector('.time-print[data-field="lateReason"]');
+      const pEarly  = card.querySelector('.time-print[data-field="earlyReason"]');
+      const pMakeup = card.querySelector('.time-print[data-field="makeupTime"]');
+      const dMakeup = card.querySelector('.time-display[data-field="makeupTime"]');
+      if (pArr)    pArr.textContent    = '🕐 Arrived at: '             + (s.arrivalTime   ? fmt12(s.arrivalTime)   : 'Time not recorded');
+      if (pDep)    pDep.textContent    = '🚪 Departed at: '            + (s.departureTime ? fmt12(s.departureTime) : 'Time not recorded');
+      if (pLate)   pLate.textContent   = '📝 Late reason: '            + (s.lateReason    ? s.lateReason           : '—');
+      if (pEarly)  pEarly.textContent  = '📝 Early departure reason: ' + (s.earlyReason   ? s.earlyReason          : '—');
+      if (pMakeup) pMakeup.textContent = '🔄 Make-up at: '             + (s.makeupTime    ? fmt12(s.makeupTime)    : 'Not scheduled');
+      if (dMakeup) { dMakeup.textContent = s.makeupTime ? 'Make-up: ' + fmt12(s.makeupTime) : ''; dMakeup.style.display = s.makeupTime ? '' : 'none'; }
+    }
+    updateSummary();
+  }
+});
 
 // ── Init ───────────────────────────────────────────────────
 updateCanvasUI();
