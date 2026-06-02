@@ -282,9 +282,21 @@
       header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
       .btn, .roster-controls, .export-row, #history-card,
       .settings-btn, #canvas-banner, #paste-instructions,
-      .student-delete, .choice-group { display: none !important; }
+      .student-delete { display: none !important; }
       .student-card { border: 1px solid #ddd !important; page-break-inside: avoid; }
       main { padding: 8px; }
+      /* Hide unselected status labels; show only the chosen one */
+      .choice-label { display: none !important; }
+      .choice-label.sel-P,
+      .choice-label.sel-T,
+      .choice-label.sel-A,
+      .choice-label.sel-E {
+        display: flex !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      /* Show time/reason detail lines */
+      .time-print { display: inline !important; }
     }
     @media (max-width: 640px) {
       header h1 { font-size: 1.1rem; }
